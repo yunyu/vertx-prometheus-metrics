@@ -17,17 +17,16 @@ import io.vertx.core.net.SocketAddress;
 import io.vertx.core.spi.metrics.*;
 import io.vertx.ext.prometheus.PrometheusMetricsOptions;
 
-public class VertxMetricsImpl implements VertxMetrics {
-  private static final String NAME_SEPARATOR = "_";
+public class VertxMetricsImpl extends AbstractMetrics implements VertxMetrics {
   private final Gauge verticles;
   private final Gauge timers;
 
   public VertxMetricsImpl(CollectorRegistry registry, VertxOptions options, PrometheusMetricsOptions metricsOptions, String baseName) {
-    baseName += NAME_SEPARATOR;
-    verticles = Gauge.build(baseName + "verticles", "The number of verticles deployed")
+    super(registry, baseName);
+    verticles = Gauge.build(baseName + "_verticles", "The number of verticles deployed")
       .labelNames("name")
       .register(registry);
-    timers = Gauge.build(baseName + "timers", "The number of active timers").register(registry);
+    timers = Gauge.build(baseName + "_timers", "The number of active timers").register(registry);
   }
 
   @Override
@@ -89,12 +88,7 @@ public class VertxMetricsImpl implements VertxMetrics {
 
   @Override
   public boolean isMetricsEnabled() {
-    return false;
-  }
-
-  @Override
-  public boolean isEnabled() {
-    return false;
+    return true;
   }
 
   @Override
