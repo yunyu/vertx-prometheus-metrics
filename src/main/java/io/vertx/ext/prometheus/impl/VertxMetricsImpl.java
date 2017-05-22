@@ -24,18 +24,22 @@ public class VertxMetricsImpl implements VertxMetrics {
 
   public VertxMetricsImpl(CollectorRegistry registry, VertxOptions options, PrometheusMetricsOptions metricsOptions, String baseName) {
     baseName += NAME_SEPARATOR;
-    verticles = Gauge.build(baseName + "verticles", "The number of verticles deployed").register(registry);
+    verticles = Gauge.build(baseName + "verticles", "The number of verticles deployed")
+      .labelNames("name")
+      .register(registry);
     timers = Gauge.build(baseName + "timers", "The number of active timers").register(registry);
   }
 
   @Override
   public void verticleDeployed(Verticle verticle) {
     verticles.inc();
+    verticles.labels(verticleName(verticle)).inc();
   }
 
   @Override
   public void verticleUndeployed(Verticle verticle) {
     verticles.dec();
+    verticles.labels(verticleName(verticle)).dec();
   }
 
   @Override
@@ -96,5 +100,9 @@ public class VertxMetricsImpl implements VertxMetrics {
   @Override
   public void close() {
 
+  }
+
+  private static String verticleName(Verticle verticle) {
+    return verticle.getClass().getName();
   }
 }
